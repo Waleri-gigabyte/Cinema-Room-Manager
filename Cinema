@@ -1,0 +1,128 @@
+import java.util.*;
+
+public class Cinema {
+    private static int purchasedTickets = 0;
+    private static int currentIncome = 0;
+    private static int totalIncome = 0;
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Enter the number of rows:");
+        int rows = sc.nextInt();
+        System.out.println("Enter the number of seats in each row:");
+        int cols = sc.nextInt();
+
+        char[][] hall = new char[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            Arrays.fill(hall[i], 'S');
+        }
+
+        totalIncome = calculateTotalIncome(rows, cols);
+
+        while (true) {
+            printMenu();
+            int choice = sc.nextInt();
+
+            if (choice == 1) {
+                printHall(hall);
+            } else if (choice == 2) {
+                buyTicket(sc, hall);
+            } else if (choice == 3) {
+                printStatistics(rows, cols);
+            } else if (choice == 0) {
+                break;
+            }
+        }
+    }
+
+    private static void printMenu() {
+        System.out.println();
+        System.out.println("1. Show the seats");
+        System.out.println("2. Buy a ticket");
+        System.out.println("3. Statistics");
+        System.out.println("0. Exit");
+    }
+
+    private static void printHall(char[][] hall) {
+        int rows = hall.length;
+        int cols = hall[0].length;
+
+        System.out.println("Cinema:");
+        System.out.print("  ");
+        for (int j = 1; j <= cols; j++) {
+            System.out.print(j + " ");
+        }
+        System.out.println();
+
+        for (int i = 0; i < rows; i++) {
+            System.out.print((i + 1) + " ");
+            for (int j = 0; j < cols; j++) {
+                System.out.print(hall[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    private static void buyTicket(Scanner sc, char[][] hall) {
+        int rows = hall.length;
+        int cols = hall[0].length;
+
+        while (true) {
+            System.out.println("Enter a row number:");
+            int r = sc.nextInt();
+            System.out.println("Enter a seat number in that row:");
+            int c = sc.nextInt();
+
+            if (r < 1 || r > rows || c < 1 || c > cols) {
+                System.out.println("Wrong input!");
+                continue;
+            }
+
+            if (hall[r - 1][c - 1] == 'B') {
+                System.out.println("That ticket has already been purchased!");
+                continue;
+            }
+
+            int price = ticketPrice(rows, cols, r);
+            System.out.println("Ticket price: $" + price);
+
+            hall[r - 1][c - 1] = 'B';
+            purchasedTickets++;
+            currentIncome += price;
+            break;
+        }
+    }
+
+    private static int ticketPrice(int rows, int cols, int chosenRow) {
+        int total = rows * cols;
+        if (total <= 60) {
+            return 10;
+        }
+        int frontRows = rows / 2;
+        return (chosenRow <= frontRows) ? 10 : 8;
+    }
+
+    private static int calculateTotalIncome(int rows, int cols) {
+        int total = rows * cols;
+        if (total <= 60) {
+            return total * 10;
+        }
+        int frontRows = rows / 2;
+        int backRows = rows - frontRows;
+        return frontRows * cols * 10 + backRows * cols * 8;
+    }
+
+    private static void printStatistics(int rows, int cols) {
+        int totalSeats = rows * cols;
+        int freeSeats = totalSeats - purchasedTickets;
+        System.out.println("Number of purchased tickets: " + purchasedTickets);
+        System.out.println("Free seats: " + freeSeats + " out of " + totalSeats);
+
+        double percentage = (double) purchasedTickets / (rows * cols) * 100;
+        System.out.printf("Percentage: %.2f%%%n", percentage);
+
+        System.out.println("Current income: $" + currentIncome);
+        System.out.println("Total income: $" + totalIncome);
+    }
+}
